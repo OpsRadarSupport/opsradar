@@ -197,11 +197,7 @@ const amberPresets = {
   high:   { rvr: 1000, dh: 500, tw: 5, cw: 5 },
 };
 
-const currentAmber = local.amberBuffer === "manual"
-  ? { rvr: local.amberBufferRvr, dh: local.amberBufferDh, tw: local.amberBufferTw, cw: local.amberBufferCw }
-  : amberPresets[local.amberBuffer] || amberPresets.medium;
-
-  
+ 
 function setAmberBuffer(val) {
   const presets = { low: { rvr:200,dh:100,tw:1,cw:1 }, medium: { rvr:500,dh:200,tw:3,cw:3 }, high: { rvr:1000,dh:500,tw:5,cw:5 } };
   if (val === "manual") {

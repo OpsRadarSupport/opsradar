@@ -172,7 +172,7 @@ function Map({ onAptClick, theme, prefs }) {
 useEffect(() => {
   const handleMouseMove = () => {
     document.querySelectorAll(".leaflet-tooltip").forEach((el) => {
-      const rect = el.getBoundingClientRect();
+      el.getBoundingClientRect();
       // tooltip görünür ama permanent değilse ve mouse dışındaysa gizle
       if (!el.classList.contains("leaflet-tooltip-permanent")) {
         el.style.display = "none";
