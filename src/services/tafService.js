@@ -1,6 +1,6 @@
 export async function fetchTaf(icao) {
   try {
-    const response = await fetch(`/api/data/taf?ids=${icao}&format=json`);
+    const response = await fetch(`/avwx/taf?ids=${icao}&format=json`);
     if (!response.ok) return null;
     const text = await response.text();
     if (!text || text.trim() === "") return null;
@@ -14,7 +14,7 @@ export async function fetchTaf(icao) {
 
 export async function fetchMetar(icao) {
   try {
-    const response = await fetch(`/api/data/metar?ids=${icao}&format=json`);
+   const response = await fetch(`/avwx/metar?ids=${icao}&format=json`);
     if (!response.ok) return null;
     const text = await response.text();
     if (!text || text.trim() === "") return null;
