@@ -10,20 +10,7 @@
 function ViewToggle({ view, onViewChange, themeMode, onThemeToggle, theme, user, onLogin, onLogout, onPrefsOpen }) {
 
   // §1.2 — MAP / LIST button style
-  const btnStyle = (active) => ({
-    background: active ? theme.bgActive : "transparent",
-    border: "none",
-    borderBottom: active ? `2px solid ${theme.green}` : "2px solid transparent",
-    color: active ? theme.green : theme.textDim,
-    fontFamily: "'Courier New', monospace",
-    fontSize: "13px",
-    fontWeight: "bold",
-    letterSpacing: "2px",
-    padding: "10px 0",
-    cursor: "pointer",
-    width: "80px",
-    textAlign: "center",
-  });
+
 //
   return (
     <>
@@ -72,7 +59,7 @@ function ViewToggle({ view, onViewChange, themeMode, onThemeToggle, theme, user,
     borderRadius: "18px",
     background: theme.bgSurface ,
     border: `1px solid ${theme.green}`,
-    cursor: "pointer", position: "absolute",
+    cursor: "pointer",
     userSelect: "none",
     boxShadow: themeMode === "dark"
       ? "inset 0 1px 4px rgba(0,0,0,0.5)"

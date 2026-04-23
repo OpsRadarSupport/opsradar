@@ -101,7 +101,7 @@ function Timeline({ icao, rwyId, fcsts, metar, onSlotSelect, onFirstSlot, select
     if (slots.length > 0 && onFirstSlot) {
       onFirstSlot(slots[0].ts, slots[0].fcst);
     }
-  }, [slots]);
+  }, [slots,onFirstSlot]);
 
   // §3.3 — Group calculation
   const groups = useMemo(() => {
