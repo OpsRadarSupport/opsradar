@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ListView Mockup — 3 Alternatif</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #080c0a;
+    color: #b8d4c2;
+    font-family: 'Courier New', monospace;
+    padding: 24px 16px;
+  }
+  h2 {
+    color: #4a7a5e;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1a3a2a;
+  }
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #00e87a;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title span {
+    font-size: 10px;
+    color: #4a7a5e;
+    font-weight: normal;
+  }
+  .recommended-badge {
+    font-size: 9px;
+    background: #0f2a1a;
+    border: 1px solid #00e87a44;
+    color: #00e87a;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* ── SHARED AIRPORT HEADER ── */
+  .apt-card {
+    background: #0c1410;
+    border: 1px solid #1a3a2a;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .apt-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green  { background: #00e87a; }
+  .dot-amber  { background: #ffb020; }
+  .dot-red    { background: #ff3d55; }
+  .dot-sm { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .icao { font-size: 14px; font-weight: bold; color: #00e87a; }
+  .apt-name { font-size: 11px; color: #4a7a5e; }
+
+  /* ── SEÇ. 1 — PILL ── */
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #1a3a2a;
+    background: #080c0a;
+    font-size: 11px;
+    color: #b8d4c2;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .pill.active-green { border-color: #00e87a; background: #0a1f0f; color: #00e87a; font-weight: bold; }
+  .pill.active-amber { border-color: #ffb020; background: #1a1000; color: #ffb020; font-weight: bold; }
+  .pill-detail {
+    background: #080c0a;
+    border: 1px solid #1a3a2a;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-top: 2px;
+  }
+  .timeline-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tl-arrow { color: #4a7a5e; font-size: 13px; cursor: pointer; padding: 0 2px; flex-shrink: 0; }
+  .tl-metar {
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    width: 46px; height: 46px; padding: 3px 0;
+    background: #0c1410; border: 1px solid #1a3a2a; border-radius: 3px;
+    border-bottom: 2px solid #5b9bd5; flex-shrink: 0; margin-right: 3px;
+  }
+  .tl-metar span { font-size: 8px; color: #5b9bd5; }
+  .tl-group {
+    display: flex; align-items: center; height: 46px;
+    border-radius: 3px; padding: 0 2px; flex-shrink: 0;
+  }
+  .tl-group-green { background: #0a1f0f; border: 1px solid #00e87a44; }
+  .tl-group-amber { background: #1a1000; border: 1px solid #ffb02044; }
+  .tl-slot {
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    width: 36px; height: 42px; padding: 3px 0; border-radius: 2px; cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tl-slot.sel-green { background: #0f1f16; border-bottom-color: #00e87a; }
+  .tl-slot.sel-amber { background: #1a1200; border-bottom-color: #ffb020; }
+  .tl-slot span { font-size: 8px; }
+  .tl-slot .tl-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .cards-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .wx-card {
+    flex: 1; background: #080c0a; border: 1px solid #1a3a2a;
+    border-radius: 3px; padding: 4px 6px; min-width: 60px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .wx-card.warn { border-color: #ff3d55; }
+  .wx-lbl { font-size: 8px; color: #4a7a5e; }
+  .wx-val { font-size: 12px; color: #b8d4c2; }
+  .wx-min { font-size: 8px; color: #4a7a5e; text-align: right; }
+  .min-btn {
+    font-size: 9px; color: #4a7a5e; border: 1px solid #1a3a2a;
+    border-radius: 2px; padding: 2px 6px; cursor: pointer; background: none;
+    align-self: flex-end;
+  }
+  .minima-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    background: #0c1410;
+    border: 1px solid #1a3a2a;
+    border-radius: 4px;
+    padding: 8px;
+    z-index: 2000;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  }
+  .minima-wrap:hover .minima-tooltip {
+    display: block;
+  }
+
+  /* ── SEÇ. 2 — TABLO ── */
+  .tbl-rwy {
+    display: grid;
+    grid-template-columns: 36px 72px 68px 60px 70px 70px 72px 20px;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 4px;
+    border-top: 1px solid #1a3a2a;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .1s;
+  }
+  .tbl-rwy:hover { background: #0a1208; }
+  .tbl-rwy-id { font-size: 12px; font-weight: bold; color: #b8d4c2; }
+  .tbl-dots { display: flex; align-items: center; gap: 2px; }
+  .tbl-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .tbl-val { font-size: 11px; color: #b8d4c2; }
+  .tbl-status {
+    font-size: 9px; font-weight: bold; padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .tbl-status.green { color: #00e87a; background: #0a1f0f; border: 1px solid #00e87a33; }
+  .tbl-status.amber { color: #ffb020; background: #1a1000; border: 1px solid #ffb02033; }
+  .tbl-chevron { font-size: 10px; color: #4a7a5e; text-align: center; }
+  .tbl-expand {
+    background: #080c0a;
+    border-top: 1px solid #1a3a2a;
+    padding: 8px 4px 8px 40px;
+  }
+
+  /* ── SEÇ. 3 — KART GRİD ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .rwy-card {
+    background: #080c0a;
+    border: 1px solid #1a3a2a;
+    border-radius: 5px;
+    padding: 7px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: border-color .15s;
+  }
+  .rwy-card.active-green { border-color: #00e87a; background: #0a1f0f; }
+  .rwy-card.active-amber { border-color: #ffb020; background: #1a1000; }
+  .rwy-card-id { font-size: 12px; font-weight: bold; color: #b8d4c2; }
+  .rwy-card-status { font-size: 9px; font-weight: bold; }
+  .rwy-card-status.green { color: #00e87a; }
+  .rwy-card-status.amber { color: #ffb020; }
+  .rwy-card-row { display: flex; align-items: center; justify-content: space-between; }
+  .card-detail-label {
+    font-size: 9px; color: #4a7a5e; margin-bottom: 4px; padding-bottom: 4px;
+    border-bottom: 1px solid #1a3a2a;
+  }
+</style>
+</head>
+<body>
+
+<h2>ListView Mockup — 3 Alternatif</h2>
+
+<!-- ══════════════════════════════════════════
+     SEÇ. 1 — PİLL LİSTESİ
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    Seçenek 1 — Pill Listesi
+    <span>Pistler yatayda pill buton · Tıklayınca detay açılır</span>
+  </div>
+
+  <!-- ── 1A: Pill'ler eşit genişlikte uzanır (flex:1) ── -->
+  <div style="font-size:10px;color:#4a7a5e;margin-bottom:6px;letter-spacing:1px;">A — Pill'ler eşit uzanır</div>
+  <div class="apt-card">
+    <div class="apt-header">
+      <div class="dot dot-amber"></div>
+      <span class="icao">LTFM</span>
+      <span class="apt-name">İstanbul Havalimanı</span>
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <div class="pill active-amber" style="flex:1;justify-content:center;">
+        <div class="dot-sm dot-amber"></div>17L
+      </div>
+      <div class="pill" style="flex:1;justify-content:center;">
+        <div class="dot-sm dot-green"></div>35R
+      </div>
+      <div class="pill" style="flex:1;justify-content:center;">
+        <div class="dot-sm dot-amber"></div>16R
+      </div>
+      <div class="pill" style="flex:1;justify-content:center;">
+        <div class="dot-sm dot-green"></div>34L
+      </div>
+      <div class="pill" style="flex:1;justify-content:center;">
+        <div class="dot-sm dot-green"></div>18
+      </div>
+      <div class="pill" style="flex:1;justify-content:center;">
+        <div class="dot-sm dot-green"></div>36
+      </div>
+    </div>
+
+    <!-- Detay: 17L seçili -->
+    <div class="pill-detail">
+      <div class="timeline-row">
+        <span class="tl-arrow">◀</span>
+        <div class="tl-metar">
+          <span>1950</span>
+          <div class="dot-sm dot-amber"></div>
+          <span>MET</span>
+        </div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot sel-amber">
+            <span style="color:#ffb020">20Z</span>
+            <div class="tl-dot" style="background:#ffb020;outline:2px solid #ffb020;outline-offset:2px"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">21Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">22Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+        </div>
+        <div class="tl-group tl-group-green">
+          <div class="tl-slot">
+            <span style="color:#00e87a">23Z</span>
+            <div class="tl-dot" style="background:#00e87a"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#00e87a">00Z</span>
+            <div class="tl-dot" style="background:#00e87a"></div>
+            <div></div>
+          </div>
+        </div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot">
+            <span style="color:#ffb020">01Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">02Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+        </div>
+        <span class="tl-arrow">▶</span>
+      </div>
+      <div style="display:flex;gap:5px;align-items:stretch;">
+        <span class="tl-arrow" style="visibility:hidden;">◀</span>
+        <div class="wx-card"><div class="wx-lbl">RVR</div><div class="wx-val">9999+</div><div class="wx-min">MIN 300m</div></div>
+        <div class="wx-card"><div class="wx-lbl">DH</div><div class="wx-val">—</div><div class="wx-min">MIN 0ft</div></div>
+        <div class="wx-card"><div class="wx-lbl">TW</div><div class="wx-val">-3.6kt</div><div class="wx-min">MAX 10kt</div></div>
+        <div class="wx-card warn"><div class="wx-lbl">XW</div><div class="wx-val" style="color:#ff3d55">28kt</div><div class="wx-min">MAX 25kt</div></div>
+        <div style="position:relative;flex-shrink:0;" class="minima-wrap">
+          <div style="background:#080c0a;border:1px solid #1a3a2a;border-radius:3px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;height:100%;box-sizing:border-box;">
+            <span style="font-size:10px;font-weight:bold;color:#4a7a5e;letter-spacing:1px;">MINIMA</span>
+          </div>
+          <div class="minima-tooltip">
+            <div style="font-size:8px;color:#4a7a5e;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid #1a3a2a;display:grid;grid-template-columns:58px 46px 44px;gap:2px;">
+              <span>TİP</span><span>RVR</span><span>DH</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 46px 44px;gap:2px;padding:2px 0;border-top:1px solid #1a3a2a;">
+              <span style="font-size:9px;font-weight:bold;color:#00e87a;">CAT3B</span>
+              <span style="font-size:9px;color:#00e87a;">75m</span>
+              <span style="font-size:9px;color:#00e87a;">—</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 46px 44px;gap:2px;padding:2px 0;border-top:1px solid #1a3a2a;">
+              <span style="font-size:9px;font-weight:bold;color:#00e87a;">CAT3A</span>
+              <span style="font-size:9px;color:#00e87a;">200m</span>
+              <span style="font-size:9px;color:#00e87a;">50ft</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 46px 44px;gap:2px;padding:2px 0;border-top:1px solid #1a3a2a;">
+              <span style="font-size:9px;font-weight:bold;color:#00e87a;">CAT2</span>
+              <span style="font-size:9px;color:#00e87a;">300m</span>
+              <span style="font-size:9px;color:#00e87a;">111ft</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 46px 44px;gap:2px;padding:2px 0;border-top:1px solid #1a3a2a;">
+              <span style="font-size:9px;font-weight:bold;color:#ffb020;">ILSY</span>
+              <span style="font-size:9px;color:#ffb020;">550m</span>
+              <span style="font-size:9px;color:#ffb020;">201ft</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 46px 44px;gap:2px;padding:2px 0;border-top:1px solid #1a3a2a;">
+              <span style="font-size:9px;font-weight:bold;color:#ffb020;">LOC</span>
+              <span style="font-size:9px;color:#ffb020;">1600m</span>
+              <span style="font-size:9px;color:#ffb020;">501ft</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 46px 44px;gap:2px;padding:2px 0;border-top:1px solid #1a3a2a;">
+              <span style="font-size:9px;font-weight:bold;color:#ff3d55;">CIRC</span>
+              <span style="font-size:9px;color:#ff3d55;">2400m</span>
+              <span style="font-size:9px;color:#ff3d55;">1075ft</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 1B: Her pill sabit 80px — kart grid ile hizalanır ── -->
+  <div style="font-size:10px;color:#4a7a5e;margin:20px 0 6px;letter-spacing:1px;">B — Her pill sabit genişlikte (kart genişliği = pill genişliği)</div>
+  <div class="apt-card">
+    <div class="apt-header">
+      <div class="dot dot-amber"></div>
+      <span class="icao">LTFM</span>
+      <span class="apt-name">İstanbul Havalimanı</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,80px);gap:5px;margin-bottom:10px;">
+      <div class="pill active-amber" style="justify-content:center;border-radius:3px;">
+        <div class="dot-sm dot-amber"></div>17L
+      </div>
+      <div class="pill" style="justify-content:center;border-radius:3px;">
+        <div class="dot-sm dot-green"></div>35R
+      </div>
+      <div class="pill" style="justify-content:center;border-radius:3px;">
+        <div class="dot-sm dot-amber"></div>16R
+      </div>
+      <div class="pill" style="justify-content:center;border-radius:3px;">
+        <div class="dot-sm dot-green"></div>34L
+      </div>
+      <div class="pill" style="justify-content:center;border-radius:3px;">
+        <div class="dot-sm dot-green"></div>18
+      </div>
+      <div class="pill" style="justify-content:center;border-radius:3px;">
+        <div class="dot-sm dot-green"></div>36
+      </div>
+    </div>
+
+    <div class="pill-detail">
+      <div class="timeline-row">
+        <span class="tl-arrow">◀</span>
+        <div class="tl-metar"><span>1950</span><div class="dot-sm dot-amber"></div><span>MET</span></div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot sel-amber"><span style="color:#ffb020">20Z</span><div class="tl-dot" style="background:#ffb020;outline:2px solid #ffb020;outline-offset:2px"></div><div></div></div>
+          <div class="tl-slot"><span style="color:#ffb020">21Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+          <div class="tl-slot"><span style="color:#ffb020">22Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+        </div>
+        <div class="tl-group tl-group-green">
+          <div class="tl-slot"><span style="color:#00e87a">23Z</span><div class="tl-dot" style="background:#00e87a"></div><div></div></div>
+          <div class="tl-slot"><span style="color:#00e87a">00Z</span><div class="tl-dot" style="background:#00e87a"></div><div></div></div>
+        </div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot"><span style="color:#ffb020">01Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+          <div class="tl-slot"><span style="color:#ffb020">02Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+        </div>
+        <span class="tl-arrow">▶</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,80px);gap:5px;">
+        <div class="wx-card"><div class="wx-lbl">RVR</div><div class="wx-val">9999+</div><div class="wx-min">MIN 300m</div></div>
+        <div class="wx-card"><div class="wx-lbl">DH</div><div class="wx-val">—</div><div class="wx-min">MIN 0ft</div></div>
+        <div class="wx-card"><div class="wx-lbl">TW</div><div class="wx-val">-3.6kt</div><div class="wx-min">MAX 10kt</div></div>
+        <div class="wx-card warn"><div class="wx-lbl">XW</div><div class="wx-val" style="color:#ff3d55">28kt</div><div class="wx-min">MAX 25kt</div></div>
+        <div style="position:relative;" class="minima-wrap">
+          <div style="background:#080c0a;border:1px solid #1a3a2a;border-radius:3px;padding:4px 6px;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:46px;">
+            <span style="font-size:10px;font-weight:bold;color:#4a7a5e;letter-spacing:1px;">MINIMA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 1C: Timeline + kartlar yan yana, pill satırı toplam genişliği belirler ── -->
+  <div style="font-size:10px;color:#4a7a5e;margin:20px 0 6px;letter-spacing:1px;">C — Timeline solda, kartlar sağda (pill satırı genişliği = toplam)</div>
+  <div class="apt-card">
+    <div class="apt-header">
+      <div class="dot dot-amber"></div>
+      <span class="icao">LTFM</span>
+      <span class="apt-name">İstanbul Havalimanı</span>
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <div class="pill active-amber" style="flex:1;justify-content:center;"><div class="dot-sm dot-amber"></div>17L</div>
+      <div class="pill" style="flex:1;justify-content:center;"><div class="dot-sm dot-green"></div>35R</div>
+      <div class="pill" style="flex:1;justify-content:center;"><div class="dot-sm dot-amber"></div>16R</div>
+      <div class="pill" style="flex:1;justify-content:center;"><div class="dot-sm dot-green"></div>34L</div>
+      <div class="pill" style="flex:1;justify-content:center;"><div class="dot-sm dot-green"></div>18</div>
+      <div class="pill" style="flex:1;justify-content:center;"><div class="dot-sm dot-green"></div>36</div>
+    </div>
+
+    <div class="pill-detail">
+      <div style="display:flex;gap:8px;align-items:flex-start;">
+        <!-- Sol: Timeline -->
+        <div style="flex:1;min-width:0;">
+          <div class="timeline-row" style="margin-bottom:0;">
+            <span class="tl-arrow">◀</span>
+            <div class="tl-metar"><span>1950</span><div class="dot-sm dot-amber"></div><span>MET</span></div>
+            <div class="tl-group tl-group-amber">
+              <div class="tl-slot sel-amber"><span style="color:#ffb020">20Z</span><div class="tl-dot" style="background:#ffb020;outline:2px solid #ffb020;outline-offset:2px"></div><div></div></div>
+              <div class="tl-slot"><span style="color:#ffb020">21Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+              <div class="tl-slot"><span style="color:#ffb020">22Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+            </div>
+            <div class="tl-group tl-group-green">
+              <div class="tl-slot"><span style="color:#00e87a">23Z</span><div class="tl-dot" style="background:#00e87a"></div><div></div></div>
+              <div class="tl-slot"><span style="color:#00e87a">00Z</span><div class="tl-dot" style="background:#00e87a"></div><div></div></div>
+            </div>
+            <div class="tl-group tl-group-amber">
+              <div class="tl-slot"><span style="color:#ffb020">01Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+              <div class="tl-slot"><span style="color:#ffb020">02Z</span><div class="tl-dot" style="background:#ffb020"></div><div></div></div>
+            </div>
+            <span class="tl-arrow">▶</span>
+          </div>
+        </div>
+        <!-- Sağ: 4 kart + MINIMA dikey -->
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          <div class="wx-card"><div class="wx-lbl">RVR</div><div class="wx-val">9999+</div><div class="wx-min">MIN 300m</div></div>
+          <div class="wx-card"><div class="wx-lbl">DH</div><div class="wx-val">—</div><div class="wx-min">MIN 0ft</div></div>
+          <div class="wx-card"><div class="wx-lbl">TW</div><div class="wx-val">-3.6kt</div><div class="wx-min">MAX 10kt</div></div>
+          <div class="wx-card warn"><div class="wx-lbl">XW</div><div class="wx-val" style="color:#ff3d55">28kt</div><div class="wx-min">MAX 25kt</div></div>
+          <div style="position:relative;" class="minima-wrap">
+            <div style="width:80px;background:#080c0a;border:1px solid #1a3a2a;border-radius:3px;padding:4px 6px;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:46px;">
+              <span style="font-size:10px;font-weight:bold;color:#4a7a5e;letter-spacing:1px;">MINIMA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇ. 2 — TABLO SATIRLARI
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    Seçenek 2 — Tablo Satırları
+    <span>Her pist tek satır · 8 saatlik dotlar + değerler · Tıklayınca detay</span>
+    <span class="recommended-badge">ÖNERİLEN</span>
+  </div>
+
+  <div class="apt-card">
+    <div class="apt-header">
+      <div class="dot dot-amber"></div>
+      <span class="icao">LTFM</span>
+      <span class="apt-name">İstanbul Havalimanı</span>
+    </div>
+
+    <!-- Tablo başlığı -->
+    <div style="display:grid;grid-template-columns:36px 72px 68px 60px 70px 70px 72px 20px;gap:4px;padding:0 4px 4px;border-bottom:1px solid #1a3a2a;">
+      <span style="font-size:8px;color:#4a7a5e">RWY</span>
+      <span style="font-size:8px;color:#4a7a5e">8 SAAT</span>
+      <span style="font-size:8px;color:#4a7a5e">RVR</span>
+      <span style="font-size:8px;color:#4a7a5e">DH</span>
+      <span style="font-size:8px;color:#4a7a5e">TW</span>
+      <span style="font-size:8px;color:#4a7a5e">XW</span>
+      <span style="font-size:8px;color:#4a7a5e">DURUM</span>
+      <span></span>
+    </div>
+
+    <!-- 17L — amber, expanded -->
+    <div class="tbl-rwy" style="background:#0a1208;border-left:2px solid #ffb020;">
+      <span class="tbl-rwy-id" style="color:#ffb020">17L</span>
+      <div class="tbl-dots">
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+      </div>
+      <span class="tbl-val">9999+</span>
+      <span class="tbl-val">—</span>
+      <span class="tbl-val">-3.6kt</span>
+      <span class="tbl-val" style="color:#ff3d55">28kt</span>
+      <span class="tbl-status amber">AMBER</span>
+      <span class="tbl-chevron">▲</span>
+    </div>
+    <!-- 17L detay -->
+    <div class="tbl-expand">
+      <div class="timeline-row">
+        <span class="tl-arrow">◀</span>
+        <div class="tl-metar">
+          <span>1950</span>
+          <div class="dot-sm dot-amber"></div>
+          <span>MET</span>
+        </div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot sel-amber">
+            <span style="color:#ffb020">20Z</span>
+            <div class="tl-dot" style="background:#ffb020;outline:2px solid #ffb020;outline-offset:2px"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">21Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">22Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+        </div>
+        <div class="tl-group tl-group-green">
+          <div class="tl-slot">
+            <span style="color:#00e87a">23Z</span>
+            <div class="tl-dot" style="background:#00e87a"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#00e87a">00Z</span>
+            <div class="tl-dot" style="background:#00e87a"></div>
+            <div></div>
+          </div>
+        </div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot">
+            <span style="color:#ffb020">01Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">02Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+        </div>
+        <span class="tl-arrow">▶</span>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="wx-card"><div class="wx-lbl">RVR</div><div class="wx-val">9999+</div><div class="wx-min">MIN 300m</div></div>
+        <div class="wx-card"><div class="wx-lbl">DH</div><div class="wx-val">—</div><div class="wx-min">MIN 0ft</div></div>
+        <div class="wx-card"><div class="wx-lbl">TW</div><div class="wx-val">-3.6kt</div><div class="wx-min">MAX 10kt</div></div>
+        <div class="wx-card warn"><div class="wx-lbl">XW</div><div class="wx-val" style="color:#ff3d55">28kt</div><div class="wx-min">MAX 25kt</div></div>
+        <button class="min-btn">MIN ▾</button>
+      </div>
+    </div>
+
+    <!-- 35R -->
+    <div class="tbl-rwy">
+      <span class="tbl-rwy-id">35R</span>
+      <div class="tbl-dots">
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+      </div>
+      <span class="tbl-val">9999+</span>
+      <span class="tbl-val">—</span>
+      <span class="tbl-val">+3.6kt</span>
+      <span class="tbl-val">7.1kt</span>
+      <span class="tbl-status green">GREEN</span>
+      <span class="tbl-chevron">▾</span>
+    </div>
+
+    <!-- 16R -->
+    <div class="tbl-rwy">
+      <span class="tbl-rwy-id">16R</span>
+      <div class="tbl-dots">
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+        <div class="tbl-dot" style="background:#ffb020"></div>
+      </div>
+      <span class="tbl-val">9999+</span>
+      <span class="tbl-val">—</span>
+      <span class="tbl-val">+3.6kt</span>
+      <span class="tbl-val">7.1kt</span>
+      <span class="tbl-status amber">AMBER</span>
+      <span class="tbl-chevron">▾</span>
+    </div>
+
+    <!-- 34L -->
+    <div class="tbl-rwy">
+      <span class="tbl-rwy-id">34L</span>
+      <div class="tbl-dots">
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+      </div>
+      <span class="tbl-val">9999+</span>
+      <span class="tbl-val">—</span>
+      <span class="tbl-val">+1.2kt</span>
+      <span class="tbl-val">9.8kt</span>
+      <span class="tbl-status green">GREEN</span>
+      <span class="tbl-chevron">▾</span>
+    </div>
+  </div>
+
+  <div class="apt-card">
+    <div class="apt-header">
+      <div class="dot dot-green"></div>
+      <span class="icao">LTFJ</span>
+      <span class="apt-name">Sabiha Gökçen Uluslararası</span>
+    </div>
+    <div style="display:grid;grid-template-columns:36px 72px 68px 60px 70px 70px 72px 20px;gap:4px;padding:0 4px 4px;border-bottom:1px solid #1a3a2a;">
+      <span style="font-size:8px;color:#4a7a5e">RWY</span>
+      <span style="font-size:8px;color:#4a7a5e">8 SAAT</span>
+      <span style="font-size:8px;color:#4a7a5e">RVR</span>
+      <span style="font-size:8px;color:#4a7a5e">DH</span>
+      <span style="font-size:8px;color:#4a7a5e">TW</span>
+      <span style="font-size:8px;color:#4a7a5e">XW</span>
+      <span style="font-size:8px;color:#4a7a5e">DURUM</span>
+      <span></span>
+    </div>
+    <div class="tbl-rwy">
+      <span class="tbl-rwy-id">06</span>
+      <div class="tbl-dots">
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+      </div>
+      <span class="tbl-val">9999+</span>
+      <span class="tbl-val">—</span>
+      <span class="tbl-val">+2.1kt</span>
+      <span class="tbl-val">5.4kt</span>
+      <span class="tbl-status green">GREEN</span>
+      <span class="tbl-chevron">▾</span>
+    </div>
+    <div class="tbl-rwy">
+      <span class="tbl-rwy-id">24</span>
+      <div class="tbl-dots">
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+        <div class="tbl-dot" style="background:#00e87a"></div>
+      </div>
+      <span class="tbl-val">9999+</span>
+      <span class="tbl-val">—</span>
+      <span class="tbl-val">-2.1kt</span>
+      <span class="tbl-val">5.4kt</span>
+      <span class="tbl-status green">GREEN</span>
+      <span class="tbl-chevron">▾</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇ. 3 — KART GRİD
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    Seçenek 3 — Kart Grid
+    <span>Pistler grid kart · Tıklayınca altında detay açılır</span>
+  </div>
+
+  <div class="apt-card">
+    <div class="apt-header">
+      <div class="dot dot-amber"></div>
+      <span class="icao">LTFM</span>
+      <span class="apt-name">İstanbul Havalimanı</span>
+    </div>
+
+    <div class="card-grid">
+      <div class="rwy-card active-amber">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id" style="color:#ffb020">17L</span>
+          <div class="dot-sm dot-amber"></div>
+        </div>
+        <span class="rwy-card-status amber">AMBER</span>
+      </div>
+      <div class="rwy-card">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id">35R</span>
+          <div class="dot-sm dot-green"></div>
+        </div>
+        <span class="rwy-card-status green">GREEN</span>
+      </div>
+      <div class="rwy-card">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id">16R</span>
+          <div class="dot-sm dot-amber"></div>
+        </div>
+        <span class="rwy-card-status amber">AMBER</span>
+      </div>
+      <div class="rwy-card">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id">34L</span>
+          <div class="dot-sm dot-green"></div>
+        </div>
+        <span class="rwy-card-status green">GREEN</span>
+      </div>
+      <div class="rwy-card">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id">18</span>
+          <div class="dot-sm dot-green"></div>
+        </div>
+        <span class="rwy-card-status green">GREEN</span>
+      </div>
+      <div class="rwy-card">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id">36</span>
+          <div class="dot-sm dot-green"></div>
+        </div>
+        <span class="rwy-card-status green">GREEN</span>
+      </div>
+    </div>
+
+    <!-- Detay: 17L seçili -->
+    <div class="pill-detail">
+      <div class="card-detail-label">— 17L —</div>
+      <div class="timeline-row">
+        <span class="tl-arrow">◀</span>
+        <div class="tl-metar">
+          <span>1950</span>
+          <div class="dot-sm dot-amber"></div>
+          <span>MET</span>
+        </div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot sel-amber">
+            <span style="color:#ffb020">20Z</span>
+            <div class="tl-dot" style="background:#ffb020;outline:2px solid #ffb020;outline-offset:2px"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">21Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">22Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+        </div>
+        <div class="tl-group tl-group-green">
+          <div class="tl-slot">
+            <span style="color:#00e87a">23Z</span>
+            <div class="tl-dot" style="background:#00e87a"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#00e87a">00Z</span>
+            <div class="tl-dot" style="background:#00e87a"></div>
+            <div></div>
+          </div>
+        </div>
+        <div class="tl-group tl-group-amber">
+          <div class="tl-slot">
+            <span style="color:#ffb020">01Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+          <div class="tl-slot">
+            <span style="color:#ffb020">02Z</span>
+            <div class="tl-dot" style="background:#ffb020"></div>
+            <div></div>
+          </div>
+        </div>
+        <span class="tl-arrow">▶</span>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="wx-card"><div class="wx-lbl">RVR</div><div class="wx-val">9999+</div><div class="wx-min">MIN 300m</div></div>
+        <div class="wx-card"><div class="wx-lbl">DH</div><div class="wx-val">—</div><div class="wx-min">MIN 0ft</div></div>
+        <div class="wx-card"><div class="wx-lbl">TW</div><div class="wx-val">-3.6kt</div><div class="wx-min">MAX 10kt</div></div>
+        <div class="wx-card warn"><div class="wx-lbl">XW</div><div class="wx-val" style="color:#ff3d55">28kt</div><div class="wx-min">MAX 25kt</div></div>
+        <button class="min-btn">MIN ▾</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="apt-card">
+    <div class="apt-header">
+      <div class="dot dot-green"></div>
+      <span class="icao">LTFJ</span>
+      <span class="apt-name">Sabiha Gökçen Uluslararası</span>
+    </div>
+    <div class="card-grid">
+      <div class="rwy-card">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id">06</span>
+          <div class="dot-sm dot-green"></div>
+        </div>
+        <span class="rwy-card-status green">GREEN</span>
+      </div>
+      <div class="rwy-card">
+        <div class="rwy-card-row">
+          <span class="rwy-card-id">24</span>
+          <div class="dot-sm dot-green"></div>
+        </div>
+        <span class="rwy-card-status green">GREEN</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
